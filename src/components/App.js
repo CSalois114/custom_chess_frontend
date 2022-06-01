@@ -1,10 +1,9 @@
+import Board from './Board'
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <h1>lots to do</h1>
+    <div id="appBody">
+      <Board/>
     </div>
-  );
+  )
 }
-
-export default App;
