@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import Tile from './Tile'
 
 export default function Board() {
@@ -56,8 +57,9 @@ export default function Board() {
     });
   }
   
+  const game_id = useParams().game_id
   useEffect(() => {
-    fetch(`http://localhost:9292/games/26`)
+    fetch(`http://localhost:9292/games/${game_id}/game_obj`)
     .then(res => res.json())
     .then(setGameObj);
   },[])
