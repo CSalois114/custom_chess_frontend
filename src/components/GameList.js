@@ -13,6 +13,7 @@ export default function GameList() {
   const navigate = useNavigate();
   return (
     <div>
+      <h2 className='listHeader'>Saved Games</h2>
       <ul id="gameList">
         {allGames.map(game => <li onClick={() => navigate(`/games/${game.id}`)}>{game.name}</li>)}
       </ul>

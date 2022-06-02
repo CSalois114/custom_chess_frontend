@@ -70,17 +70,58 @@ code {
   background-position: 0px 18px;
   width: 100px;
   background-image: radial-gradient(rgba(0, 0, 0, 0.448) 0%, rgba(0, 0, 0, 0) 40%);
-  
 }
 
 li {
-  box-shadow: 0px 4px 2px rgba(56, 52, 51, 0.71);
+  box-shadow: 0px 4px 4px rgba(56, 52, 51, 0.71);
   margin: auto;
-  width: 250px;
+  width: 230px;
   padding: 5px;
-  padding-left: 15px;
-  list-style: circle inside;
   background-color: rgb(226, 198, 190);
   border-radius: 5px;
   border: 2px solid rgb(195, 169, 169);
+  margin-top:7px;
+  cursor: pointer;
+}
+
+#gameList > li {
+  list-style: circle inside;
+}
+
+#homeList > li {
+  text-align: center;
+  list-style-type: none;
+}
+
+#homeButton {
+  background-color: rgb(226, 198, 190);
+  border-radius: 5px;
+  border: 2px solid rgb(195, 169, 169);
+  box-shadow: 5px 4px 4px rgba(56, 52, 51, 0.71);
+  margin: 10px 0 0 10px;
+  cursor: pointer;
+}
+
+#homeButton:hover {
+  background-color: rgba(153, 181, 106, 0.914);
+}
+
+.listHeader {
+  text-align: center;
+  padding: 5px;
+  margin: auto;
+  width: 250px;
+  background-color: rgb(226, 198, 190);
+  border-radius: 8px;
+  border: 4px solid rgb(195, 169, 169);
+  box-shadow: 0px 6px 6px rgba(56, 52, 51, 0.71);
+  margin-bottom: -3px;
+}
+
+ul {
+  padding: 0;
+}
+
+li:hover {
+  background-color: rgba(153, 181, 106, 0.914);
 }
