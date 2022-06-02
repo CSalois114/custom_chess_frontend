@@ -17,11 +17,14 @@ export default function Board() {
     }
   }
 
-  const moveSelected = coords => {
-    if(selected && getPossibleMoves(selected).includes(coords)) {
-      selected.coords = coords;
-      setGameObj({...gameObj});
+  const moveSelectedToCoords = coords => {
+    const killedPiece = pieceAtCoords(coords);
+    if(killedPiece) {
+      killedPiece.coords = '0,0';
+      killedPiece.is_king && alert(selected.home_team ? "You Win" : "Enemy Wins")
     }
+    selected.coords = coords;
+    setSelected(null);
   }
 
   const getCoordsFromOffset = (startCoords, offset) => {
@@ -30,14 +33,14 @@ export default function Board() {
     return [splitCoords[0] + splitOffset[0], splitCoords[1] + splitOffset[1]].join()
   }
 
-  const isDependencyClear = (piece, move) => {
+  const allDependenciesClear = (piece, move) => {
     if (move.dependent_on) {
       const dependencyCoords = getCoordsFromOffset(piece.coords, move.dependent_on)
       if (pieceAtCoords(dependencyCoords)) {
         return false;
       }
       const dependentMove = piece.moves.find(newMove => newMove.offset === move.dependent_on)
-      return isDependencyClear(piece, dependentMove)
+      return allDependenciesClear(piece, dependentMove)
     }
     return true
   }
@@ -46,7 +49,7 @@ export default function Board() {
     return piece && piece.moves.map(move => {
       const coords = getCoordsFromOffset(piece.coords, move.offset)
       const isDiffTeam = pieceAtCoords(coords)?.home_team !== piece.home_team
-      const isDependenciesClear = (isDependencyClear(piece, move));
+      const isDependenciesClear = (allDependenciesClear(piece, move));
       
       // console.log("move offset", move.offset, "diffTeam", isDiffTeam, "clear", isDependenciesClear)
       return isDiffTeam && isDependenciesClear ? coords : null;
@@ -54,7 +57,7 @@ export default function Board() {
   }
   
   useEffect(() => {
-    fetch(`http://localhost:9292/games/13`)
+    fetch(`http://localhost:9292/games/26`)
     .then(res => res.json())
     .then(setGameObj);
   },[])
@@ -68,15 +71,15 @@ export default function Board() {
         {[...Array(boardSize ** 2).keys()].map(i => {
           const coords = `${i % boardSize + 1},${7 - Math.floor(i / boardSize)}`;
           const moveable = possibleMoves?.includes(coords)
-          const image = gameObj.deployments?.find(dep => dep.coords === coords)?.image
+          const piece = gameObj.deployments?.find(dep => dep.coords === coords)
           return (
             <Tile 
               key={coords} 
-              image={image} 
+              piece={piece} 
               coords={coords} 
               moveable={moveable}
               changeSelected={changeSelected}
-              moveSelected={moveSelected}
+              moveSelectedToCoords={moveSelectedToCoords}
             />
           )
         })}
