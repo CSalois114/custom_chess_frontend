@@ -1,7 +1,8 @@
 import { Routes, Route, useNavigate } from "react-router-dom"
-import Board from './Board'
+import Game from './Game'
 import GameList from './GameList'
-import CreateGame from "./CreateGame"
+import CreatePieceType from './CreatePieceType'
+import EditingBoard from './EditingBoard'
 import Home from "./Home"
 
 export default function App() {
@@ -10,10 +11,11 @@ export default function App() {
     <div id="appBody">
       <button id="homeButton" onClick={() => navigate(`/`)}> Home </button>
       <Routes>
-        <Route path="/"               element={ <Home />       } />
-        <Route path="/games"          element={ <GameList />   } />
-        <Route path="/games/:game_id" element={ <Board />      } />
-        <Route path="/games/new"      element={ <CreateGame /> } />
+        <Route path="/"                      element={ <Home />            } />
+        <Route path="/games"                 element={ <GameList />        } />
+        <Route path="/games/:id"             element={ <Game />            } />
+        <Route path="/games/:id/piece_types" element={ <CreatePieceType /> } />
+        <Route path="/piece_types/:id/moves" element={ <EditingBoard />    } />
       </Routes>
     </div>
   )

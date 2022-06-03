@@ -15,7 +15,7 @@ export default function GameList() {
     <div>
       <h2 className='listHeader'>Saved Games</h2>
       <ul id="gameList">
-        {allGames.map(game => <li onClick={() => navigate(`/games/${game.id}`)}>{game.name}</li>)}
+        {allGames.map((game, i) => <li key={i} onClick={() => navigate(`/games/${game.id}`)}>{game.name}</li>)}
       </ul>
     </div>
   )
