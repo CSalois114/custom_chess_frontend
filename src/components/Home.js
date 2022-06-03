@@ -10,8 +10,6 @@ export default function Home() {
     .then(newGame => {
       navigate(`/games/${newGame.id}`)
     });
-    
-    // navigate("/games/new")
   }
 
   return (

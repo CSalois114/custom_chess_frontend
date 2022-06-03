@@ -6,13 +6,15 @@ export default function Tile({
   tileClickFn,
   offset,
   selectedOffset,
+  pieceSelectedCoords,
 }) {
   let colorClass = "";
   piece && (colorClass = piece.home_team ? "user" : "enemy");
   moveable && (colorClass += " moveable");
   piece?.is_king && (colorClass += " king");
   offset && offset === selectedOffset && (colorClass += " selected");
-
+  coords && pieceSelectedCoords === coords && (colorClass += "pieceSelected")
+  coords && (console.log(pieceSelectedCoords))
   const image = piece?.image || piece?.front_img
   return (
     <div

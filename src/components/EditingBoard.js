@@ -61,7 +61,7 @@ export default function EditingBoard() {
   const boardSize = 13
   return (
     <div id="editingBoard" >
-      <button onClick={() => nav(`/games/${pieceType.game_id}`)}>Finished</button>
+      <button id="moveButton" onClick={() => nav(`/games/${pieceType.game_id}`)}>Finished</button>
       <div id="editingGrid">
         {[...Array(boardSize ** 2).keys()].map(i => {
           const offset = `${(i % boardSize + 1) - 7},${(13 - Math.floor(i / boardSize)) - 7}`;

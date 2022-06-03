@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import Editor from './Editor';
 import Board from './Board';
@@ -8,6 +8,7 @@ export default function Game() {
   const [pieceSelected, setPieceSelected] = useState(null);
   const [typeSelected, setTypeSelected] = useState(null);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [isUsersTurn, setIsUsersTurn] = useState(true);
 
   const gameId = useParams().id
   useEffect(() => {
@@ -18,6 +19,10 @@ export default function Game() {
 
   const getPieceAtCoords = coords => {
     return gameObj.pieces?.find(piece => piece.coords === coords)
+  }
+
+  const updateGameObj = updatedGameObj => {
+    setGameObj({...updatedGameObj})
   }
 
   const getCoordsFromOffset = (startCoords, offset) => {
@@ -47,8 +52,9 @@ export default function Game() {
       const coords = getCoordsFromOffset(piece.coords, offset)
       const isDiffTeam = getPieceAtCoords(coords)?.home_team !== piece.home_team
       const isDependenciesClear = (allDependenciesClear(piece, move));
+      const isInBounds = coords.split(',').every(n => n > 0 && n < 8)
 
-      return isDiffTeam && isDependenciesClear ? coords : null;
+      return isDiffTeam && isInBounds && isDependenciesClear ? coords : null;
     });
   }
   const selectedPossibleMoves = getPossibleMoves(pieceSelected)
@@ -70,6 +76,14 @@ export default function Game() {
     .then(postedPiece => piece.id = postedPiece.id);
   }
 
+  const patchPiece = (piece, patch) => {
+    fetch(`http://localhost:9292/pieces/${piece.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({patch})
+    });
+  }
+
   const changePieceSelected = piece => {
     if(pieceSelected === piece) {
       setPieceSelected(null)
@@ -87,23 +101,53 @@ export default function Game() {
     }
   }
 
-  const movePieceSelectedToCoords = newCoords => {
-    if(selectedPossibleMoves?.includes(newCoords)){
+  const movePieceSelectedToCoords = (newCoords, piece=pieceSelected) => {
+    if(getPossibleMoves(piece)?.includes(newCoords) && piece.home_team === isUsersTurn){
       const killedPiece = getPieceAtCoords(newCoords);
       if(killedPiece) {
         killedPiece.coords = '0,0';
-        killedPiece.is_king && alert(pieceSelected.home_team ? "You Win" : "Enemy Wins")
+        patchPiece(killedPiece, {coords: "0,0"})
+        killedPiece.is_king && alert(piece.home_team ? "You Win" : "Enemy Wins")
       }
-      pieceSelected.coords = newCoords;
+      piece.coords = newCoords;
+      patchPiece(piece, {coords: newCoords})
       setPieceSelected(null);
+      setIsUsersTurn(!isUsersTurn)
     }
   }
 
-  const createPieceAtCoords = coords => {
+  const shuffleArr = arr =>  {
+    let currentIndex = arr.length,  randomIndex;
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--
 
+      [arr[currentIndex], arr[randomIndex]] = [arr[randomIndex], arr[currentIndex]];
+    }
+    return arr;
+  }
+  
+  const aiMove = () => {
+    console.log("checking")
+    console.log(gameObj.pieces)
+    const aiPieces = shuffleArr(gameObj.pieces.filter(piece => !piece.home_team))
+    while (aiPieces.length > 0) {
+      const aiPiece = aiPieces.pop()
+      const possibleMove= shuffleArr(getPossibleMoves(aiPiece))[0]
+      if(possibleMove){
+        console.log("possible", possibleMove, "piece", aiPiece)
+        movePieceSelectedToCoords(possibleMove, aiPiece)
+        return null
+      }
+    }
+    alert("Enemy has no moves.")
+    console.log(aiPieces)
+  }
+  gameObj.pieces && !isUsersTurn && aiMove()
+
+  const createPieceAtCoords = coords => {
     if(!getPieceAtCoords(coords)?.is_king && coords.split(',')[1] < 4){
-      
-      
+   
       deletePiece(getPieceAtCoords(coords))
       deletePiece(getPieceAtCoords(mirrorCoords(coords)))
 
@@ -152,18 +196,14 @@ export default function Game() {
     } 
   }
 
-  const patchGame = patch => {
-    fetch(`http://localhost:9292/games/${gameId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({patch})
+  const resetGame = () => {
+    gameObj.pieces.forEach(piece => {
+      piece.coords = piece.starting_coords;
+      patchPiece(piece, {coords: piece.starting_coords})
     })
-    .then(res => res.json())
-    .then(bool => bool && setGameObj({...gameObj, ...patch}));
+    setGameObj({...gameObj})
   }
 
-  const toggleEditingMode = () => patchGame({editing_mode: false});
-  
   const getPieceClickFn = () => {
     if(gameObj.editing_mode && isDeleteMode) {
       return deletePair
@@ -191,8 +231,6 @@ export default function Game() {
     setIsDeleteMode(isDeleteMode => !isDeleteMode)
   }
   const boardSize = 7;
-
-  console.log(gameObj.pieces?.map(piece => piece.id))
   return (
     <div>
       <Board
@@ -203,14 +241,16 @@ export default function Game() {
       />
       {gameObj.editing_mode ? (
         <Editor 
-          gameObj={gameObj} 
+          gameObj={gameObj}
+          updateGameObj={updateGameObj} 
           changeTypeSelected={changeTypeSelected}
           typeSelected={typeSelected}
           toggleDeleteMode={toggleDeleteMode}
           isDeleteMode={isDeleteMode}
-          toggleEditingMode={toggleEditingMode}
+          pieceSelectedCoords={pieceSelected?.coords}
         /> 
       ): null }
+      <button id="resetButton" className='button' onClick={() => resetGame()}> Reset Game</button>
     </div>
   );
 }

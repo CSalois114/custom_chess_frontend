@@ -7,19 +7,38 @@ export default function Editor({
   typeSelected,
   toggleDeleteMode,
   isDeleteMode,
-  toggleEditingMode
+  updateGameObj
 }) {
-  const [name, setName] = useState(gameObj.name);
+  const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const updateName = (e) => {
     setName(e.target.value);
   };
 
+  const patchGame = patch => {
+    fetch(`http://localhost:9292/games/${gameObj.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({patch})
+    })
+    .then(res => res.json())
+    .then(bool => bool && updateGameObj({...gameObj, ...patch}));
+  }
+
+  const saveBoard = () => {
+    console.log("test")
+    if(name){
+      patchGame({editing_mode: false, name: name})
+    } else {
+      alert("Please enter a name for this game.")
+    }
+  }
+
   return (
     <div id="editor">
       <form>
-        <input onChange={updateName} value={name} />
+        <input onChange={updateName} value={name} placeholder="Enter Name"/>
       </form>
       <button 
         id="deletePokeButton" 
@@ -38,7 +57,7 @@ export default function Editor({
       <button 
         id="saveButton" 
         className="editButton"
-        onClick={() => toggleEditingMode()}
+        onClick={() => saveBoard()}
       >
         Save Setup
       </button>
