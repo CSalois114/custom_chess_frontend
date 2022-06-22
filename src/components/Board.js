@@ -1,7 +1,7 @@
 import React from 'react'
 import Tile from './Tile'
 
-export default function Board({ pieceClickFn, tileClickFn, getPieceAtCoords, selectedPossibleMoves }) {
+export default function Board({ pieceClickFn, tileClickFn, getPieceAtCoords, selectedPossibleMoves, pieceSelectedCoords }) {
   const boardSize = 7;
   return (
     <div id="board" >
@@ -19,6 +19,7 @@ export default function Board({ pieceClickFn, tileClickFn, getPieceAtCoords, sel
               moveable={moveable}
               pieceClickFn={pieceClickFn}
               tileClickFn={tileClickFn}
+              pieceSelectedCoords={pieceSelectedCoords}
             />
           )
         })}

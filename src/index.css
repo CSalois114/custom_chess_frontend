@@ -28,7 +28,6 @@ code {
   grid-template-columns: repeat(7, 90px);
   grid-gap: 7px;  
   transform: perspective(500px) rotateX(10deg);
-
 }
 
 .tile {
@@ -44,7 +43,7 @@ code {
 
 .user {
   background-color: rgb(230, 213, 206);
-  border: 5px solid rgb(202, 176, 125);
+  border: 5px solid rgb(138, 160, 167);
 }
 
 .enemy {
@@ -57,15 +56,15 @@ code {
 }
 
 .user.king {
-  border: 6px solid rgb(222, 197, 54)
+  border: 7px solid rgb(108, 172, 192);
 }
 
 .enemy.king {
-  border: 6px solid rgb(189, 94, 77)
+  border: 7px solid rgb(189, 94, 77)
 }
 
 .imgContainer img {
-  margin-top: -23px;
+  margin-top: -30px;
   margin-left: -10px;
   background-position: 0px 18px;
   width: 100px;
@@ -152,7 +151,6 @@ li:hover {
 }
 
 #editor input:focus {
-  
   outline: none;
 }
 
@@ -161,7 +159,7 @@ li:hover {
 }
 
 .typeSelected {
-  background-image: radial-gradient(rgba(236, 39, 39, 0.999) 0%, rgba(0, 0, 0, 0) 70%);
+  background-image: radial-gradient(rgba(163, 84, 233, 0.999) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
 #rosterGrid {
@@ -170,8 +168,9 @@ li:hover {
   grid-template-rows: 94px;
 }
 
-.active {
-  background-color: red;
+.editButton.active {
+  background-color: rgb(232, 70, 70);
+  border: 2px solid rgb(131, 32, 32);
 }
 
 #typeGrid {
@@ -265,6 +264,19 @@ li:hover {
   background-color: rgba(153, 181, 106, 0.914);
 }
 
-.pieceSelected > img {
-  background-color: red;
+.pieceSelected.user{
+  background-color: rgb(183, 196, 202);
+}
+
+.pieceSelected.enemy{
+  background-color: rgb(166, 121, 121);
+}
+
+.pieceSelected img {
+  margin-top: -43px;
+  margin-left: -10px;
+  background-position: 0px 20px;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.448) 0%, rgba(0, 0, 0, 0) 43%);
+  padding-bottom: 20px;
+ 
 }

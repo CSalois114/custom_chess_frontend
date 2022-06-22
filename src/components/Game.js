@@ -55,7 +55,7 @@ export default function Game() {
       const isInBounds = coords.split(',').every(n => n > 0 && n < 8)
 
       return isDiffTeam && isInBounds && isDependenciesClear ? coords : null;
-    });
+    }).filter(move => move !== null);
   }
   const selectedPossibleMoves = getPossibleMoves(pieceSelected)
   const mirrorCoords = coords => coords.split(',').map(n => 8-n).join()
@@ -65,7 +65,7 @@ export default function Game() {
       method: 'DELETE'
     })
   }
-
+  
   const postPiece = piece => {
     fetch(`http://localhost:9292/pieces`, {
       method: 'POST',
@@ -75,7 +75,7 @@ export default function Game() {
     .then(res => res.json())
     .then(postedPiece => piece.id = postedPiece.id);
   }
-
+  
   const patchPiece = (piece, patch) => {
     fetch(`http://localhost:9292/pieces/${piece.id}`, {
       method: 'PATCH',
@@ -83,7 +83,7 @@ export default function Game() {
       body: JSON.stringify({patch})
     });
   }
-
+  
   const changePieceSelected = piece => {
     if(pieceSelected === piece) {
       setPieceSelected(null)
@@ -91,7 +91,7 @@ export default function Game() {
       setPieceSelected(piece)
     }
   }
-
+  
   const changeTypeSelected = pieceType => {
     setIsDeleteMode(false)
     if(typeSelected && pieceType.id === typeSelected.id) {
@@ -100,19 +100,35 @@ export default function Game() {
       setTypeSelected(pieceType)
     }
   }
+  
+  const resetGame = () => {
+    gameObj.pieces.forEach(piece => {
+      piece.coords = piece.starting_coords;
+      patchPiece(piece, {coords: piece.starting_coords})
+    })
+    setGameObj({...gameObj})
+    setIsUsersTurn(true);
+
+  }
 
   const movePieceSelectedToCoords = (newCoords, piece=pieceSelected) => {
     if(getPossibleMoves(piece)?.includes(newCoords) && piece.home_team === isUsersTurn){
       const killedPiece = getPieceAtCoords(newCoords);
-      if(killedPiece) {
-        killedPiece.coords = '0,0';
-        patchPiece(killedPiece, {coords: "0,0"})
-        killedPiece.is_king && alert(piece.home_team ? "You Win" : "Enemy Wins")
-      }
       piece.coords = newCoords;
-      patchPiece(piece, {coords: newCoords})
+      patchPiece(piece, {coords: newCoords});
       setPieceSelected(null);
-      setIsUsersTurn(!isUsersTurn)
+      if(killedPiece) {
+        killedPiece.coords = null;
+        patchPiece(killedPiece, {coords: null});
+        
+      }
+      if(killedPiece?.is_king) {
+        alert(piece.home_team ? "You Win" : "Enemy Wins");
+        resetGame();
+        return null;
+      } else {
+        setIsUsersTurn(!isUsersTurn);
+      }
     }
   }
 
@@ -128,22 +144,19 @@ export default function Game() {
   }
   
   const aiMove = () => {
-    console.log("checking")
-    console.log(gameObj.pieces)
-    const aiPieces = shuffleArr(gameObj.pieces.filter(piece => !piece.home_team))
-    while (aiPieces.length > 0) {
-      const aiPiece = aiPieces.pop()
+    const aiPieces = gameObj.pieces.filter(piece => !piece.home_team && piece.coords)
+    const shuffledPieces = shuffleArr(aiPieces)
+    while (shuffledPieces.length > 0) {
+      const aiPiece = shuffledPieces.pop()
       const possibleMove= shuffleArr(getPossibleMoves(aiPiece))[0]
       if(possibleMove){
-        console.log("possible", possibleMove, "piece", aiPiece)
         movePieceSelectedToCoords(possibleMove, aiPiece)
         return null
       }
     }
     alert("Enemy has no moves.")
-    console.log(aiPieces)
   }
-  gameObj.pieces && !isUsersTurn && aiMove()
+  !isUsersTurn && aiMove()
 
   const createPieceAtCoords = coords => {
     if(!getPieceAtCoords(coords)?.is_king && coords.split(',')[1] < 4){
@@ -196,14 +209,6 @@ export default function Game() {
     } 
   }
 
-  const resetGame = () => {
-    gameObj.pieces.forEach(piece => {
-      piece.coords = piece.starting_coords;
-      patchPiece(piece, {coords: piece.starting_coords})
-    })
-    setGameObj({...gameObj})
-  }
-
   const getPieceClickFn = () => {
     if(gameObj.editing_mode && isDeleteMode) {
       return deletePair
@@ -238,6 +243,7 @@ export default function Game() {
         tileClickFn={tileClickFn} 
         getPieceAtCoords={getPieceAtCoords} 
         selectedPossibleMoves={selectedPossibleMoves} 
+        pieceSelectedCoords={pieceSelected?.coords}
       />
       {gameObj.editing_mode ? (
         <Editor 
@@ -247,7 +253,6 @@ export default function Game() {
           typeSelected={typeSelected}
           toggleDeleteMode={toggleDeleteMode}
           isDeleteMode={isDeleteMode}
-          pieceSelectedCoords={pieceSelected?.coords}
         /> 
       ): null }
       <button id="resetButton" className='button' onClick={() => resetGame()}> Reset Game</button>

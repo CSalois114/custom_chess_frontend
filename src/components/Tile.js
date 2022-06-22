@@ -13,13 +13,13 @@ export default function Tile({
   moveable && (colorClass += " moveable");
   piece?.is_king && (colorClass += " king");
   offset && offset === selectedOffset && (colorClass += " selected");
-  coords && pieceSelectedCoords === coords && (colorClass += "pieceSelected")
-  coords && (console.log(pieceSelectedCoords))
+  coords && pieceSelectedCoords === coords && (colorClass += " pieceSelected")
+
   const image = piece?.image || piece?.front_img
   return (
     <div
       className={`tile ${colorClass}`}
-      style={{boxShadow: `${4 - coords?.split(',')[0] / 1}px 4px 2px rgba(56, 52, 51, 0.71)`}}
+      style={{boxShadow: `${4 - coords?.split(',')[0]}px 4px 2px rgba(56, 52, 51, 0.71)`}}
       onClick={() => tileClickFn && tileClickFn(coords || offset)}
     >
       <div className="imgContainer" >
